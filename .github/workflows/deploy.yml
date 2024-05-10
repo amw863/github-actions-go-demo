@@ -25,7 +25,7 @@ jobs:
                 host: ${{ secrets.SSH_HOST }}
                 username: ${{ secrets.SSH_USER }}
                 password: ${{ secrets.SSH_PASSWORD }}
-                source: "hello"
+                source: "main"
                 target: "/tmp"
 
             - name: 4、deploy service
@@ -36,5 +36,5 @@ jobs:
                 user: ${{ secrets.SSH_USER }}
                 #这里是执行脚本
                 command: |
-                  "pid=$(pgrep -f "main") && kill $pid && nohup /tmp/hello/main &"    
+                  "pid=$(pgrep -f "main") && kill $pid && nohup /tmp/main &"    
           
