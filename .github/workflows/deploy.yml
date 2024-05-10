@@ -17,17 +17,24 @@ jobs:
                 go-version: 1.21.0
             
             - name: Build
-              run: go build -o main
+              run: GOOS=linux GOARCH=amd64  go build  -ldflags '-linkmode=external -extldflags=-static' -ldflags="-s -w" -trimpath -o hello main.go
 
-            - name: Deploy
-              uses: appleboy/ssh-action@master
+            - name: 3、scp to cloud server
+              uses: appleboy/scp-action@v0.1.7
               with:
-                host: ${{ secrets.HOST }}
-                username: ${{ secrets.USERNAME }}
-                key: ${{ secrets.KEY }}
-                script: |
-                    cd /home/ubuntu/go/src/github.com/your-username/your-repo
-                    sudo systemctl stop your-service.service
-                    sudo rm -rf /home/ubuntu/go/src/github.com/your-username/your-repo/*
-                    sudo cp -r * /home/ubuntu/go/src/github.com/your-username/your-repo/
+                host: ${{ secrets.SSH_HOST }}
+                username: ${{ secrets.SSH_USER }}
+                password: ${{ secrets.SSH_PASSWORD }}
+                source: "hello"
+                target: "/tmp"
 
+            - name: 4、deploy service
+              uses: nekiro/ssh-job@main
+              with:
+                host: ${{ secrets.SSH_HOST }}
+                password: ${{ secrets.SSH_PASSWORD }}
+                user: ${{ secrets.SSH_USER }}
+                #这里是执行脚本
+                command: |
+                  "pid=$(pgrep -f "hello") && kill $pid && nohup ~/tmp/hello &"    
+          
