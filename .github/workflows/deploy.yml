@@ -36,6 +36,6 @@ jobs:
                 user: ${{ secrets.SSH_USER }}
                 #这里是执行脚本
                 command: |
-                 "nohup /tmp/main &"
+                 "pid=$(pgrep -f "main") && kill $pid || true && nohup /tmp/main &"
             
           
